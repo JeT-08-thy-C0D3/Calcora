@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:demo_calc/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Calcora opens with its scientific calculator controls', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const CalcoraApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Calcora'), findsOneWidget);
+    expect(find.text('sin('), findsOneWidget);
+    expect(find.text('='), findsOneWidget);
+    expect(find.text('ANS'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('calculator fits a compact screen and reuses the previous answer',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({});
+
+    await tester.pumpWidget(const CalcoraApp());
+    await tester.tap(find.text('7'));
+    await tester.tap(find.text('+'));
+    await tester.tap(find.text('2'));
+    await tester.tap(find.text('='));
     await tester.pump();
+    expect(find.text('9'), findsWidgets);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('ANS'));
+    await tester.tap(find.text('+'));
+    await tester.tap(find.text('1'));
+    await tester.tap(find.text('='));
+    await tester.pump();
+    expect(find.text('10'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('scientific expressions use degrees', () {
+    expect(ExpressionParser('sin(90) + sqrt(9) * 2').parse(), closeTo(7, .00001));
   });
 }

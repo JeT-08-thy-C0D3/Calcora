@@ -1,11 +1,11 @@
 {
-    "name": "demo_calc",
-    "short_name": "demo_calc",
+    "name": "Calcora",
+    "short_name": "Calcora",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Prelim Act",
+    "description": "A modern scientific calculator.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
